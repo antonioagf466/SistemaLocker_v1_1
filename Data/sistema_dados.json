@@ -1,0 +1,56 @@
+{
+    "usuarios": {
+        "admin01": {
+            "nome": "Ivonei",
+            "senha": "1234",
+            "tipo": "admin",
+            "locker_reservado": null,
+            "historico_reservas": []
+        },
+        "user01": {
+            "nome": "Carlos",
+            "senha": "abcd",
+            "tipo": "user",
+            "locker_reservado": null,
+            "historico_reservas": []
+        },
+        "user02": {
+            "nome": "Roberto",
+            "senha": "7890",
+            "tipo": "user",
+            "locker_reservado": "103",
+            "historico_reservas": [
+                {
+                    "locker_id": "103",
+                    "data_reserva": "2025-09-18T17:56:58.611918",
+                    "data_liberacao": null,
+                    "tipo": "Grande",
+                    "status": "Reservado"
+                }
+            ]
+        }
+    },
+    "lockers": {
+        "101": {
+            "tamanho": "Pequeno",
+            "status": "Ocupado",
+            "reservado_por": "user01",
+            "data_reserva": "2025-09-09T22:36:15.621887",
+            "tempo_limite": "2025-09-09T23:36:15.621887"
+        },
+        "102": {
+            "tamanho": "Medio",
+            "status": "Ocupado",
+            "reservado_por": "user02",
+            "data_reserva": "2025-09-18T17:36:42.523594",
+            "tempo_limite": "2025-09-18T21:36:42.523594"
+        },
+        "103": {
+            "tamanho": "Grande",
+            "status": "Ocupado",
+            "reservado_por": "user02",
+            "data_reserva": "2025-09-18T17:56:58.611918",
+            "tempo_limite": "2025-09-18T21:56:58.611918"
+        }
+    }
+}

@@ -1,0 +1,332 @@
+DOCUMENTAÇÃO
+=====================================
+Observação:
+-----------
+Destaques do Diagrama de Classes
+    Encapsulamento: todos os atributos são privados (-) e acessados por métodos públicos (+).
+    Herança: Administrador herda de Usuario; LockerPequeno e LockerGrande podem herdar de Locker.
+    Polimorfismo: método reservar() pode ser sobrescrito nas subclasses de Locker.
+    Abstração: interface Reservavel define um contrato para objetos que podem ser reservados.
+
+
+
++------------------+
+|     Usuario      |
++------------------+
+| - id: int        |
+| - nome: String   |
+| - senha: String  |
+| - locker: Locker |
++------------------+
+| +reservarLocker()|
+| +liberarLocker() |
++------------------+
+           ▲
+           │ (herança)
++----------------------+
+|   Administrador      |
++----------------------+
+| - nivelAcesso: int   |
++----------------------+
+| +adicionarLocker()   |
+| +removerLocker()     |
+| +colocarEmManutencao()|
++----------------------+
+
++------------------+
+|     Locker       |
++------------------+
+| - id: int        |
+| - tamanho: String|
+| - status: String |
++------------------+
+| +abrir()         |
+| +fechar()        |
+| +reservar()      |
+| +liberar()       |
++------------------+
+           ▲
+           │ (herança opcional)
++----------------------+
+|   LockerPequeno      |
++----------------------+
+| +reservar()          |
++----------------------+
+
++----------------------+
+|   LockerGrande       |
++----------------------+
+| +reservar()          |
++----------------------+
+
++--------------------------+
+|     SistemaLocker        |
++--------------------------+
+| - listaLockers: List     |
+| - usuarios: List         |
++--------------------------+
+| +registrarUsuario()      |
+| +login()                 |
+| +listarLockersDisponiveis() |
+| +gerenciarReservas()     |
++--------------------------+
+
++----------------------+
+|    Interface: Reservavel |
++----------------------+
+| +reservar()          |
+| +liberar()           |
++----------------------+
+
+
+
+#########################################
+##########################################
+Escopo Detalhado do Sistema Locker
+----------------------------------
+Objetivo do Sistema:
+    Desenvolver uma aplicação que gerencie o uso de lockers (armários) por usuários cadastrados, permitindo reserva, liberação, controle de acesso e manutenção. O sistema deve ser capaz de diferenciar tipos de lockers, controlar permissões de usuários e administradores, e garantir segurança e rastreabilidade das operações.
+
+Perfis de Usuário:
+Usuário Comum
+    Pode se cadastrar e fazer login
+    Reservar e liberar lockers disponíveis
+    Consultar histórico de uso
+
+Administrador
+    Possui acesso privilegiado
+    Pode adicionar, remover ou colocar lockers em manutenção
+    Visualiza todos os usuários e reservas
+    Gerencia o sistema de forma geral
+
+Componentes Principais
+----------------------
+1. Classe Locker (superclasse)
+    Atributos: id, tamanho, status, reservadoPor
+    Métodos: abrir(), fechar(), reservar(), liberar()
+
+2. Subclasses de Locker
+    LockerPequeno, LockerMedio, LockerGrande
+    Cada uma pode sobrescrever o método reservar() com
+        regras específicas (ex: tempo máximo, tipo de objeto
+        permitido)
+
+3. Interface Reservavel
+    Métodos: reservar(), liberar()
+    Implementada por todas as subclasses de Locker
+
+4. Classe Usuario
+    Atributos: id, nome, senha, lockerReservado
+    Métodos: reservarLocker(), liberarLocker()
+
+5. Classe Administrador (herda de Usuario)
+    Métodos adicionais: adicionarLocker(), removerLocker(), colocarEmManutencao()
+
+6. Classe SistemaLocker
+    Atributos: listaDeLockers, usuariosRegistrados
+    Métodos: registrarUsuario(), login(), listarLockersDisponiveis(), gerenciarReservas()
+
+Funcionalidades do Sistema:
+---------------------------
+    Cadastro e autenticação de usuários
+    Reserva de lockers com controle de tempo
+    Liberação de lockers
+    Visualização de status dos lockers
+        (livre, ocupado, manutenção)
+    Histórico de uso por usuário
+    Gerenciamento de lockers (admin)
+    Interface de login diferenciada para usuários e administradores
+    Persistência de dados (JSON, SQLite ou arquivos)
+    Tratamento de exceções (ex: tentativa de reserva duplicada)
+    Testes unitários com JUnit (opcional)
+    Interface gráfica (opcional)
+
+
+
+
+#######################################################
+#######################################################
+Regras de Negócio
+------------------
+Define o comportamento esperado do sistema:
+    Um usuário só pode reservar um locker por vez
+    Lockers em manutenção não podem ser reservados
+    Lockers têm tempo máximo de reserva (ex: 2 horas)
+    Administradores podem gerenciar todos os lockers e usuários
+
+
+Regras de Negócio Detalhadas
+Autenticação e Acesso
+    Todo usuário deve se cadastrar com nome, ID e senha.
+    O sistema deve validar o login antes de permitir qualquer
+        operação.
+    O perfil de Administrador tem permissões adicionais e acesso
+        irrestrito aos lockers e usuários.
+
+Gestão de Lockers
+    Lockers são classificados em três tipos:
+        Pequeno, Médio e Grande.
+    Cada locker possui um ID único, um tamanho, e um status:
+        Disponível: pode ser reservado
+        Ocupado: está em uso
+        Manutenção: indisponível para reserva
+    Lockers podem ser colocados em manutenção apenas por administradores.
+
+Reserva de Lockers
+    Um usuário só pode ter um locker reservado por vez.
+    A reserva deve registrar:
+        Locker reservado
+        Usuário responsável
+        Data e hora da reserva
+    O tempo máximo de reserva pode variar por tipo:
+        Pequeno: até 1 hora
+        Médio: até 2 horas
+        Grande: até 4 horas
+    Após o tempo limite, o sistema pode:
+        Notificar o usuário
+        Liberar automaticamente o locker (opcional)
+
+Liberação de Lockers
+    O usuário pode liberar o locker manualmente.
+    Lockers liberados voltam ao status Disponível.
+    O sistema deve registrar o histórico de uso:
+        Quem usou
+        Quando reservou e liberou
+        Tipo de locker
+
+Funções do Administrador
+    Pode adicionar novos lockers ao sistema.
+    Pode remover lockers (desde que estejam livres).
+    Pode alterar o status de lockers para Manutenção.
+    Pode visualizar todos os usuários e seus históricos.
+    Pode redefinir senhas de usuários (opcional).
+
+Relatórios e Histórico
+    Cada usuário pode consultar seu histórico de reservas.
+    O administrador pode gerar relatórios de uso por período,
+        tipo de locker ou usuário.
+
+Validações e Exceções
+    Não é permitido reservar um locker já ocupado ou em manutenção.
+    Não é permitido liberar um locker que não está reservado pelo usuário atual.
+    O sistema deve impedir login com credenciais inválidas.
+    O sistema deve validar o tempo de reserva conforme o tipo de locker.
+
+
+
+
+
+
+
+Persistência
+------------
+Como os dados serão armazenados:
+    Arquivos .json ou .txt para salvar usuários e lockers
+    Banco de dados simples como SQLite (se quiser ir além)
+    Classes responsáveis por leitura/escrita (ex: PersistenciaUsuario, PersistenciaLocker)
+
+Interface do Usuário
+--------------------
+Definir:
+    Interface de linha de comando (CLI)
+    Interface gráfica (GUI) para os mais interessados
+
+Telas:
+    login,
+    cadastro,
+    painel do usuário,
+    painel do administrador
+
+
+Sugestão de Interface de Linha de Comando (CLI)
+Tela Inicial
+====================================
+  SISTEMA DE LOCKERS - BEM-VINDO
+====================================
+1. Login
+2. Cadastro
+3. Sair
+Escolha uma opção: _
+
+
+
+===== CADASTRO DE USUÁRIO =====
+Digite seu nome: _
+Crie um ID de usuário: _
+Crie uma senha: _
+Cadastro realizado com sucesso!
+
+
+
+===== LOGIN =====
+ID de usuário: _
+Senha: _
+[✔] Login realizado com sucesso!
+[✖] Usuário ou senha inválidos.
+
+
+
+Menu do Usuário Comum
+===== MENU DO USUÁRIO =====
+1. Reservar Locker
+2. Liberar Locker
+3. Consultar Locker Reservado
+4. Ver Histórico de Uso
+5. Sair
+Escolha uma opção: _
+
+
+
+Reservar Locker
+LOCKERS DISPONÍVEIS:
+ID: 101 | Tipo: Pequeno | Status: Disponível
+ID: 102 | Tipo: Médio   | Status: Disponível
+ID: 103 | Tipo: Grande  | Status: Disponível
+
+Digite o ID do locker que deseja reservar: _
+[✔] Locker reservado com sucesso!
+
+
+
+Liberar Locker
+Locker reservado: ID 102 | Tipo: Médio
+Deseja liberar este locker? (S/N): _
+[✔] Locker liberado!
+
+
+
+
+Ver Histórico
+===== HISTÓRICO DE USO =====
+Locker 102 | Reservado em: 09/09/2025 14:00 | Liberado em: 09/09/2025 15:00
+Locker 101 | Reservado em: 08/09/2025 10:00 | Liberado em: 08/09/2025 11:00
+
+
+
+Menu do Administrador
+===== MENU DO ADMINISTRADOR =====
+1. Adicionar Locker
+2. Remover Locker
+3. Colocar Locker em Manutenção
+4. Ver Todos os Lockers
+5. Ver Usuários e Históricos
+6. Sair
+Escolha uma opção: _
+
+
+
+Adicionar Locker
+Digite o tipo do locker (Pequeno/Médio/Grande): _
+Locker adicionado com ID 104.
+
+
+Colocar em Manutenção
+Digite o ID do locker: _
+Locker 103 agora está em manutenção.
+
+
+
+Ver Todos os Lockers
+ID: 101 | Tipo: Pequeno | Status: Ocupado
+ID: 102 | Tipo: Médio   | Status: Disponível
+ID: 103 | Tipo: Grande  | Status: Manutenção
