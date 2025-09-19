@@ -1,5 +1,6 @@
 # import os
 from Models.cls_usuario import Administrador
+from Core.helper import *
 
 def exibir_cabecalho(titulo):
     print("\n" + "=" * 60)
@@ -41,12 +42,12 @@ def menu_usuario(usuario, sistema):
             opcao = input("\nEscolha uma opção (1-6): ").strip()
 
             if opcao == "1":
-                from Core.helper import HelperMenus
                 helper = HelperMenus(sistema)
                 helper.reservar_locker(usuario)
                 input("\nPressione Enter para continuar...")
             elif opcao == "2":
-                pass
+                helper = HelperMenus(sistema)
+                helper.liberar_locker(usuario)
                 # liberar_locker(usuario, sistema)
             elif opcao == "3":
                 pass

@@ -33,9 +33,13 @@ class HelperMenus:
         return lockers_disponiveis
     def reservar_locker(self, usuario):
         # Verificar se o usuário já possui um locker reservado
-        if usuario.get_locker_reservado():
-            print("\nVocê já possui um locker reservado!")
-            return False
+        sistema = self._get_sistema()
+        usuario_id = usuario.get_id()
+        for locker_id, locker_data in sistema._SistemaLocker__lockers.items():
+            if (locker_data.get('status') == 'Ocupado' and 
+                locker_data.get('reservado_por') == usuario_id):
+                print(f"\nVocê já possui um locker reservado! (Locker {locker_id})")
+                return False
 
         # Obter lista de lockers disponíveis
         lockers_disponiveis = self._get_lockers_disponiveis()
@@ -106,3 +110,61 @@ class HelperMenus:
             except Exception as e:
                 print(f"Erro ao reservar locker: {str(e)}")
                 return False
+    def liberar_locker(self, usuario):
+        sistema = self._get_sistema()
+        usuario_id = usuario.get_id()
+    
+        # Encontrar o locker reservado pelo usuário
+        locker_reservado = None
+        for locker_id, locker_data in sistema._SistemaLocker__lockers.items():
+            if (locker_data.get('status') == 'Ocupado' and 
+                locker_data.get('reservado_por') == usuario_id):
+                locker_reservado = locker_id
+                break
+    
+        # Verificar se o usuário tem algum locker reservado
+        if not locker_reservado:
+            print("\nVocê não possui nenhum locker reservado.")
+            return False
+    
+        try:
+            # Mostrar informações do locker atual
+            locker_data = sistema._SistemaLocker__lockers[locker_reservado]
+            print(f"\nSeu locker reservado:")
+            print(f"ID: {locker_reservado}")
+            print(f"Tamanho: {locker_data['tamanho']}")
+            
+            # Confirmação
+            confirmacao = input(f"\nDeseja liberar o locker {locker_reservado}? (s/n): ").strip().lower()
+            if confirmacao not in ['s', 'sim', 'y', 'yes']:
+                print("Operação cancelada.")
+                return False
+            
+            # Liberar o locker
+            locker_data['status'] = 'Disponivel'
+            locker_data.pop('reservado_por', None)
+            locker_data.pop('data_reserva', None)
+            locker_data.pop('tempo_limite', None)
+            
+            # Atualizar dados do usuário
+            usuario.set_locker_reservado(None)
+            
+            # Atualizar histórico do usuário
+            from datetime import datetime
+            historico_reservas = usuario.get_historico_reservas()
+            for reserva in historico_reservas:
+                if (reserva['locker_id'] == locker_reservado and 
+                    reserva['status'] == 'Reservado'):
+                    reserva['data_liberacao'] = datetime.now().isoformat()
+                    reserva['status'] = 'Liberado'
+                    break
+            
+            # Salvar alterações no arquivo JSON
+            sistema._salvar_dados()
+            
+            print(f"\nLocker {locker_reservado} está liberado.")
+            return True
+            
+        except Exception as e:
+            print(f"Erro ao liberar locker: {str(e)}")
+            return False
