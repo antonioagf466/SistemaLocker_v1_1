@@ -35,7 +35,17 @@ class SistemaLocker:
                     else:
                         usuario = Usuario(user_data['nome'], user_id, user_data['senha'])
                     self.__usuarios[user_id] = usuario
-                
+                # Load user's locker reservation and history if they exist
+                self.__lockers = dados.get('lockers', {})
+                if 'locker_reservado' in user_data and user_data['locker_reservado']:
+                    usuario.set_locker_reservado(user_data['locker_reservado'])
+    
+                if 'historico_reservas' in user_data and user_data['historico_reservas']:
+                    for reserva in user_data['historico_reservas']:
+                        usuario.adicionar_reserva(reserva)
+    
+                self.__usuarios[user_id] = usuario
+    
                 self.__lockers = dados.get('lockers', {})
         except FileNotFoundError:
             print(f"Arquivo {self.__arquivo_dados} não encontrado. Usando dados padrão.")

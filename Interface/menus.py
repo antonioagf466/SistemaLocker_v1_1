@@ -1,6 +1,6 @@
 # import os
 from Models.cls_usuario import Administrador
-from Core.helper import *
+from Core.helper import HelperMenus
 
 def exibir_cabecalho(titulo):
     print("\n" + "=" * 60)
@@ -42,22 +42,20 @@ def menu_usuario(usuario, sistema):
             opcao = input("\nEscolha uma opção (1-6): ").strip()
 
             if opcao == "1":
-                helper = HelperMenus(sistema)
-                helper.reservar_locker(usuario)
+                HelperMenus.reservar_locker(usuario, sistema)
                 input("\nPressione Enter para continuar...")
             elif opcao == "2":
-                helper = HelperMenus(sistema)
-                helper.liberar_locker(usuario)
-                # liberar_locker(usuario, sistema)
+                HelperMenus.liberar_locker(usuario, sistema)
+                input("\nPressione Enter para continuar...")
             elif opcao == "3":
-                pass
-                # ver_locker(usuario, sistema)
+                HelperMenus.ver_locker(usuario, sistema)
+                input("\nPressione Enter para continuar...")
             elif opcao == "4":
-                pass
-                # usuario.exibir_historico()
+                HelperMenus.ver_historico(usuario, sistema)
+                input("\nPressione Enter para continuar...")
             elif opcao == "5":
-                pass
-                # alterar_senha(usuario, sistema)
+                HelperMenus.alterar_senha(usuario, sistema)
+                input("\nPressione Enter para continuar...")
             elif opcao == "6":
                 print("Retornando ao Menu Principal")
                 break
@@ -163,7 +161,7 @@ def menu_principal(sistema):
                             
                             if novo_usuario:
                                 input("\nPressione Enter para continuar...")
-                                break
+                            break
                         elif tipo == "3":
                             break
                         else:
@@ -179,4 +177,3 @@ def menu_principal(sistema):
 
         else:
             print("Opção inválida. Digite 1, 2 ou 3.")
-
