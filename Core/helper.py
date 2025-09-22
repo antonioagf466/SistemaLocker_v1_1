@@ -260,15 +260,20 @@ class HelperMenus:
         try:
             print("\n=== ADICIONAR NOVO LOCKER ===")
             
-            # Get existing locker IDs to generate a new unique ID
+            # Get existing locker IDs and find the first available ID
             existing_ids = list(sistema._SistemaLocker__lockers.keys())
             if existing_ids:
-            # Convert to integers, find max, and increment
+                # Convert existing IDs to integers
                 numeric_ids = [int(lid) for lid in existing_ids if lid.isdigit()]
+                numeric_ids.sort()  # Sort IDs in ascending order
+                
+                # Find first gap in sequence starting from 101
+                novo_id = "101"  # Default start
                 if numeric_ids:
-                    novo_id = str(max(numeric_ids) + 1)
-                else:
-                    novo_id = "101"  # Start from 101 if no numeric IDs exist
+                    for i in range(101, max(numeric_ids) + 2):
+                        if i not in numeric_ids:
+                            novo_id = str(i)
+                            break
             else:
                 novo_id = "101"  # First locker
             
@@ -310,8 +315,8 @@ class HelperMenus:
             
             # Create the new locker
             novo_locker = {
-            'tamanho': tamanho,
-            'status': 'Disponivel'
+                'tamanho': tamanho,
+                'status': 'Disponivel'
             }
             
             # Add to system
@@ -536,4 +541,180 @@ class HelperMenus:
             return True
         except Exception as e:
             print(f"Erro ao mostrar os usuários: {str(e)}")
+            return False
+    @staticmethod
+    def forcar_liberacao(admin, sistema):
+        try:
+            print("\n=== FORÇAR LIBERAÇÃO DE LOCKER ===")
+            
+            # Get all occupied lockers
+            lockers_ocupados = {}
+            for locker_id, locker_data in sistema._SistemaLocker__lockers.items():
+                if locker_data.get('status') == 'Ocupado':
+                    lockers_ocupados[locker_id] = locker_data
+            
+            if not lockers_ocupados:
+                print("\nNão há lockers ocupados no momento.")
+                return False
+            
+            # Display occupied lockers
+            print("\nLockers Ocupados:")
+            print("-" * 100)
+            print(f"{'ID':<5} | {'Tamanho':<8} | {'Usuario ID':<12} | {'Nome Usuario':<20} | {'Data Reserva':<20}")
+            print("-" * 100)
+            
+            for locker_id, locker_data in lockers_ocupados.items():
+                tamanho = locker_data.get('tamanho', 'N/A')
+                user_id = locker_data.get('reservado_por', 'N/A')
+                data_reserva = locker_data.get('data_reserva', 'N/A')
+                
+                # Get user name
+                user = sistema._SistemaLocker__usuarios.get(user_id)
+                user_name = user.get_nome() if user else 'N/A'
+                
+                print(f"{locker_id:<5} | {tamanho:<8} | {user_id:<12} | {user_name:<20} | {data_reserva:<20}")
+            
+            print("-" * 100)
+            
+            # Ask for locker ID to force release
+            while True:
+                escolha = input("\nDigite o ID do locker para forçar liberação (ou 0 para cancelar): ").strip()
+                
+                if escolha == "0":
+                    print("Operação cancelada.")
+                    return False
+                
+                if escolha not in lockers_ocupados:
+                    print("ID de locker inválido. Escolha um dos lockers ocupados.")
+                    continue
+                
+                # Confirmation
+                locker_data = lockers_ocupados[escolha]
+                user_id = locker_data.get('reservado_por')
+                user = sistema._SistemaLocker__usuarios.get(user_id)
+                
+                print(f"\nConfirmar liberação forçada:")
+                print(f"ID do Locker: {escolha}")
+                print(f"Tamanho: {locker_data['tamanho']}")
+                print(f"Usuário: {user.get_nome() if user else 'N/A'}")
+                
+                confirmacao = input("\nDeseja forçar a liberação deste locker? (s/n): ").strip().lower()
+                if confirmacao not in ['s', 'sim', 'y', 'yes']:
+                    print("Operação cancelada.")
+                    return False
+                
+                # Force release the locker
+                locker_data['status'] = 'Disponivel'
+                data_liberacao = HelperMenus.get_formatted_time()
+                
+                # Update user data if user still exists
+                if user:
+                    # Update user's locker reservation status
+                    user.set_locker_reservado(None)
+                    
+                    # Add release entry to user history
+                    historico_liberacao = {
+                        'locker_id': escolha,
+                        'data_reserva': locker_data.get('data_reserva', data_liberacao),
+                        'data_liberacao': data_liberacao,
+                        'tipo': locker_data['tamanho'],
+                        'status': 'Liberado (Forcado)'
+                    }
+                    user.adicionar_reserva(historico_liberacao)
+                
+                # Clean up locker data
+                locker_data.pop('reservado_por', None)
+                locker_data.pop('data_reserva', None)
+                locker_data.pop('tempo_limite', None)
+                
+                # Save changes to JSON file
+                if sistema._salvar_dados():
+                    print(f"\nLocker {escolha} foi liberado forçadamente com sucesso!")
+                    return True
+                else:
+                    print("\nErro ao salvar os dados. A liberação forçada não foi concluída.")
+                    return False
+                
+        except Exception as e:
+            print(f"Erro ao forçar liberação do locker: {str(e)}")
+            return False
+    @staticmethod
+    def remover_locker(admin, sistema):
+        try:
+            print("\n=== REMOVER LOCKER ===")
+            
+            # Get all lockers
+            all_lockers = sistema._SistemaLocker__lockers
+            if not all_lockers:
+                print("\nNão há lockers no sistema.")
+                return False
+            
+            # Display all lockers with their status and user info
+            print("\nLockers Disponíveis:")
+            print("-" * 100)
+            print(f"{'ID':<5} | {'Tamanho':<8} | {'Status':<15} | {'ID Usuario':<12} | {'Nome Usuario':<20}")
+            print("-" * 100)
+            
+            for locker_id, locker_data in all_lockers.items():
+                tamanho = locker_data.get('tamanho', 'N/A')
+                status = locker_data.get('status', 'N/A')
+                
+                # Get user info if locker is occupied
+                if status == 'Ocupado':
+                    user_id = locker_data.get('reservado_por', 'N/A')
+                    user = sistema._SistemaLocker__usuarios.get(user_id)
+                    user_name = user.get_nome() if user else 'N/A'
+                else:
+                    user_id = 'N/A'
+                    user_name = 'N/A'
+                
+                print(f"{locker_id:<5} | {tamanho:<8} | {status:<15} | {user_id:<12} | {user_name:<20}")
+            
+            print("-" * 100)
+            
+            # Ask for locker ID to remove
+            while True:
+                escolha = input("\nDigite o ID do locker para remover (ou 0 para cancelar): ").strip()
+                
+                if escolha == "0":
+                    print("Operação cancelada.")
+                    return False
+                
+                if escolha not in all_lockers:
+                    print("ID de locker inválido. Escolha um dos lockers listados.")
+                    continue
+                
+                # Check if locker is occupied
+                locker_data = all_lockers[escolha]
+                if locker_data.get('status') == 'Ocupado':
+                    user_id = locker_data.get('reservado_por')
+                    user = sistema._SistemaLocker__usuarios.get(user_id)
+                    print(f"\nAtenção: Este locker está ocupado por {user.get_nome() if user else 'usuário desconhecido'}!")
+                    print("Você precisa forçar a liberação do locker antes de removê-lo.")
+                    return False
+                
+                # Confirmation
+                print(f"\nConfirmar remoção do locker:")
+                print(f"ID: {escolha}")
+                print(f"Tamanho: {locker_data['tamanho']}")
+                print(f"Status atual: {locker_data['status']}")
+                
+                confirmacao = input("\nDeseja remover este locker? (s/n): ").strip().lower()
+                if confirmacao not in ['s', 'sim', 'y', 'yes']:
+                    print("Operação cancelada.")
+                    return False
+                
+                # Remove the locker
+                del sistema._SistemaLocker__lockers[escolha]
+                
+                # Save changes to JSON file
+                if sistema._salvar_dados():
+                    print(f"\nLocker {escolha} foi removido com sucesso!")
+                    return True
+                else:
+                    print("\nErro ao salvar os dados. O locker não foi removido.")
+                    return False
+                
+        except Exception as e:
+            print(f"Erro ao remover locker: {str(e)}")
             return False

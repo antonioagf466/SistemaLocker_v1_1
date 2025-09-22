@@ -99,11 +99,11 @@ def menu_administrador(admin, sistema):
                 HelperMenus.listar_usuarios(admin, sistema)
                 input("\nPressione Enter para continuar...")
             elif opcao == "6":
-                pass
-                # forcar_liberacao_admin(admin, sistema)
+                HelperMenus.forcar_liberacao(admin, sistema)
+                input("\nPressione Enter para continuar...")
             elif opcao == "7":
-                pass
-                # remover_locker_admin(admin, sistema)
+                HelperMenus.remover_locker(admin, sistema)
+                input("\nPressione Enter para continuar...")
             elif opcao == "8":
                 pass
                 # admin.gerar_relatorio_sistema(sistema)
