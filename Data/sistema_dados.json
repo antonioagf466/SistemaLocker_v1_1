@@ -16,7 +16,7 @@
         },
         "user02": {
             "nome": "Roberto",
-            "senha": "3456",
+            "senha": "7890",
             "tipo": "user",
             "locker_reservado": null,
             "historico_reservas": [
@@ -61,6 +61,20 @@
                     "data_liberacao": "21-09-2025 17:26:26",
                     "tipo": "Pequeno",
                     "status": "Liberado"
+                },
+                {
+                    "locker_id": "101",
+                    "data_reserva": "22-09-2025 15:35:44",
+                    "data_liberacao": null,
+                    "tipo": "Pequeno",
+                    "status": "Reservado"
+                },
+                {
+                    "locker_id": "101",
+                    "data_reserva": "22-09-2025 16:24:32",
+                    "data_liberacao": "22-09-2025 16:24:32",
+                    "tipo": "Pequeno",
+                    "status": "Liberado"
                 }
             ]
         }
@@ -80,10 +94,7 @@
         },
         "104": {
             "tamanho": "Medio",
-            "status": "Ocupado",
-            "reservado_por": "user01",
-            "data_reserva": "22-09-2025 13:33:14",
-            "tempo_limite": "22-09-2025 17:33:14"
+            "status": "Disponivel"
         }
     }
 }

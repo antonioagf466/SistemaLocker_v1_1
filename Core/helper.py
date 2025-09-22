@@ -68,9 +68,9 @@ class HelperMenus:
                 # Reserve the locker
                 locker_escolhido = sistema._SistemaLocker__lockers[escolha]
                 
-                # Update locker data
+                # Update locker data with user ID instead of name
                 locker_escolhido['status'] = 'Ocupado'
-                locker_escolhido['reservado_por'] = usuario.get_id()
+                locker_escolhido['reservado_por'] = usuario.get_id()  # Store ID instead of name
                 
                 # Set time limit based on size
                 data_atual = HelperMenus.get_formatted_time()
@@ -115,19 +115,19 @@ class HelperMenus:
         locker_reservado = None
         for locker_id, locker_data in sistema._SistemaLocker__lockers.items():
             if (locker_data.get('status') == 'Ocupado' and 
-                locker_data.get('reservado_por') == usuario_id):
+                locker_data.get('reservado_por') == usuario_id):  # Check by ID
                 locker_reservado = locker_id
                 break
         
         # Check if user has any reserved locker
         if not locker_reservado:
-            print("\nVocê não possui nenhum locker reservado.")
+            print(f"\nUsuário {usuario.get_nome()} não possui nenhum locker reservado.")  # Show name
             return False
         
         try:
             # Show current locker information
             locker_data = sistema._SistemaLocker__lockers[locker_reservado]
-            print(f"\nSeu locker reservado:")
+            print(f"\nLocker reservado para {usuario.get_nome()}:")  # Show name
             print(f"ID: {locker_reservado}")
             print(f"Tamanho: {locker_data['tamanho']}")
             
@@ -148,21 +148,21 @@ class HelperMenus:
             
             # Add release entry to user history
             data_liberacao = HelperMenus.get_formatted_time()
-    
+            
             # Create a new history entry for the release
             historico_liberacao = {
-            'locker_id': locker_reservado,
-            'data_reserva': locker_data.get('data_reserva', data_liberacao),
-            'data_liberacao': data_liberacao,
-            'tipo': locker_data['tamanho'],
-            'status': 'Liberado'
+                'locker_id': locker_reservado,
+                'data_reserva': locker_data.get('data_reserva', data_liberacao),
+                'data_liberacao': data_liberacao,
+                'tipo': locker_data['tamanho'],
+                'status': 'Liberado'
             }
             usuario.adicionar_reserva(historico_liberacao)
             
             # Save changes to JSON file
             sistema._salvar_dados()
             
-            print(f"\nLocker {locker_reservado} está liberado.")
+            print(f"\nLocker {locker_reservado} foi liberado.")
             return True
             
         except Exception as e:
@@ -170,28 +170,30 @@ class HelperMenus:
             return False
     @staticmethod
     def ver_locker(usuario, sistema):
+        """Check user's reserved locker"""
         usuario_id = usuario.get_id()
-    
-    # Find the locker reserved by the user
+        
+        # Find the locker reserved by the user
         locker_reservado = None
         for locker_id, locker_data in sistema._SistemaLocker__lockers.items():
             if (locker_data.get('status') == 'Ocupado' and 
-            locker_data.get('reservado_por') == usuario_id):
+                locker_data.get('reservado_por') == usuario_id):  # Check by ID
                 locker_reservado = locker_id
                 break
         
         # Check if user has any reserved locker
         if not locker_reservado:
-            print("\nVocê não tem um locker reservado")
+            print(f"\nUsuário {usuario.get_nome()} não tem um locker reservado")  # Show name
             return False
         
         try:
-        # Show current locker information
+            # Show current locker information
             locker_data = sistema._SistemaLocker__lockers[locker_reservado]
             tempo_limite = locker_data.get('tempo_limite', 'Não definido')
             
-            print(f"\nSeu locker reservado:")
+            print(f"\nLocker reservado para {usuario.get_nome()}:")  # Show name
             print(f"ID do Locker: {locker_reservado}")
+            print(f"Tamanho: {locker_data['tamanho']}")
             print(f"Tempo limite: {tempo_limite}")
             return True
         
@@ -498,15 +500,20 @@ class HelperMenus:
     @staticmethod
     def listar_usuarios(admin, sistema):
         try:
-            print("Todos usuarios:")
+            print("\n=== Todos os Usuários ===")
+            print("-" * 70)
+            print(f"{'ID':<10} | {'Nome':<20} | {'Tipo':<10}")
+            print("-" * 70)
             
-            for user_id, user_data in sistema._SistemaLocker__usuarios.items():
-                nome = user_data.get('nome', 'N/A')
-                tipo = user_data.get('tipo','N/A')
+            for user_id, user in sistema._SistemaLocker__usuarios.items():
+                # Use proper getter method and isinstance check
+                nome = user.get_nome()
+                tipo = "Admin" if isinstance(user, Administrador) else "Usuário"
                 
-                print(f"{user_id:<5} | {nome:<8} | {tipo:<15}")
-                
-                print("-" * 70)
+                print(f"{user_id:<10} | {nome:<20} | {tipo:<10}")
+            
+            print("-" * 70)
+            return True
         except Exception as e:
-            print(f"Erro ao mostrar os usuarios: {str(e)}")
+            print(f"Erro ao mostrar os usuários: {str(e)}")
             return False
