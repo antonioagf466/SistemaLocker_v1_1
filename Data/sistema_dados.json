@@ -11,14 +11,22 @@
             "nome": "Carlos",
             "senha": "abcd",
             "tipo": "user",
-            "locker_reservado": null,
-            "historico_reservas": []
+            "locker_reservado": "104",
+            "historico_reservas": [
+                {
+                    "locker_id": "104",
+                    "data_reserva": "22-09-2025 16:28:25",
+                    "data_liberacao": null,
+                    "tipo": "Medio",
+                    "status": "Reservado"
+                }
+            ]
         },
         "user02": {
             "nome": "Roberto",
             "senha": "7890",
             "tipo": "user",
-            "locker_reservado": null,
+            "locker_reservado": "103",
             "historico_reservas": [
                 {
                     "locker_id": "102",
@@ -75,6 +83,13 @@
                     "data_liberacao": "22-09-2025 16:24:32",
                     "tipo": "Pequeno",
                     "status": "Liberado"
+                },
+                {
+                    "locker_id": "103",
+                    "data_reserva": "22-09-2025 16:28:06",
+                    "data_liberacao": null,
+                    "tipo": "Grande",
+                    "status": "Reservado"
                 }
             ]
         }
@@ -90,11 +105,17 @@
         },
         "103": {
             "tamanho": "Grande",
-            "status": "Disponivel"
+            "status": "Ocupado",
+            "reservado_por": "user02",
+            "data_reserva": "22-09-2025 16:28:06",
+            "tempo_limite": "22-09-2025 20:28:06"
         },
         "104": {
             "tamanho": "Medio",
-            "status": "Disponivel"
+            "status": "Ocupado",
+            "reservado_por": "user01",
+            "data_reserva": "22-09-2025 16:28:25",
+            "tempo_limite": "22-09-2025 20:28:25"
         }
     }
 }

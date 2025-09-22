@@ -478,22 +478,32 @@ class HelperMenus:
     def listar_lockers(admin, sistema):
         try:
             print("\n=== Todos os lockers ===")
-                
-            # Get all lockers under maintenance
+            
+            # Get all lockers
             all_lockers = sistema._SistemaLocker__lockers
             print("\nTodos lockers:")
-            print("-" * 70)
-            print(f"{'ID':<5} | {'Tamanho':<8} | {'Status':<15}")
-            print("-" * 70)
+            print("-" * 100)
+            print(f"{'ID':<5} | {'Tamanho':<8} | {'Status':<15} | {'ID Usuario':<12} | {'Nome Usuario':<20}")
+            print("-" * 100)
             
             for locker_id, locker_data in all_lockers.items():
                 tamanho = locker_data.get('tamanho', 'N/A')
                 status = locker_data.get('status', 'N/A')
                 
+                # Get user info if locker is occupied
+                if status == 'Ocupado':
+                    user_id = locker_data.get('reservado_por', 'N/A')
+                    # Get user name from sistema
+                    user = sistema._SistemaLocker__usuarios.get(user_id)
+                    user_name = user.get_nome() if user else 'N/A'
+                else:
+                    user_id = 'N/A'
+                    user_name = 'N/A'
                 
-                print(f"{locker_id:<5} | {tamanho:<8} | {status:<15}")
-                
-                print("-" * 70)
+                print(f"{locker_id:<5} | {tamanho:<8} | {status:<15} | {user_id:<12} | {user_name:<20}")
+            
+            print("-" * 100)
+            return True
         except Exception as e:
             print(f"Erro ao mostrar os lockers: {str(e)}")
             return False
@@ -501,18 +511,28 @@ class HelperMenus:
     def listar_usuarios(admin, sistema):
         try:
             print("\n=== Todos os Usuários ===")
-            print("-" * 70)
-            print(f"{'ID':<10} | {'Nome':<20} | {'Tipo':<10}")
-            print("-" * 70)
+            print("-" * 100)
+            print(f"{'ID':<10} | {'Nome':<20} | {'Tipo':<10} | {'Locker ID':<10} | {'Tamanho':<10}")
+            print("-" * 100)
             
             for user_id, user in sistema._SistemaLocker__usuarios.items():
-                # Use proper getter method and isinstance check
                 nome = user.get_nome()
                 tipo = "Admin" if isinstance(user, Administrador) else "Usuário"
                 
-                print(f"{user_id:<10} | {nome:<20} | {tipo:<10}")
+                # Get locker info if user has one reserved
+                locker_id = 'N/A'
+                locker_tamanho = 'N/A'
+                
+                for lid, locker_data in sistema._SistemaLocker__lockers.items():
+                    if (locker_data.get('status') == 'Ocupado' and 
+                        locker_data.get('reservado_por') == user_id):
+                        locker_id = lid
+                        locker_tamanho = locker_data.get('tamanho', 'N/A')
+                        break
+                
+                print(f"{user_id:<10} | {nome:<20} | {tipo:<10} | {locker_id:<10} | {locker_tamanho:<10}")
             
-            print("-" * 70)
+            print("-" * 100)
             return True
         except Exception as e:
             print(f"Erro ao mostrar os usuários: {str(e)}")
