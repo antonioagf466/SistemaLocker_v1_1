@@ -77,6 +77,13 @@
         "103": {
             "tamanho": "Grande",
             "status": "Disponivel"
+        },
+        "104": {
+            "tamanho": "Medio",
+            "status": "Ocupado",
+            "reservado_por": "user01",
+            "data_reserva": "22-09-2025 13:33:14",
+            "tempo_limite": "22-09-2025 17:33:14"
         }
     }
 }

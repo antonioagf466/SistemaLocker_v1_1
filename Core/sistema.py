@@ -45,7 +45,7 @@ class SistemaLocker:
                         usuario.adicionar_reserva(reserva)
     
                 self.__usuarios[user_id] = usuario
-    
+                
                 self.__lockers = dados.get('lockers', {})
         except FileNotFoundError:
             print(f"Arquivo {self.__arquivo_dados} não encontrado. Usando dados padrão.")

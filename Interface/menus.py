@@ -84,20 +84,20 @@ def menu_administrador(admin, sistema):
             opcao = input("\nEscolha uma opção (1-9): ").strip()
 
             if opcao == "1":
-                pass
-                # adicionar_locker_admin(admin, sistema)
+                HelperMenus.adicionar_locker(admin, sistema)
+                input("\nPressione Enter para continuar...")
             elif opcao == "2":
-                pass
-                # colocar_manutencao_admin(admin, sistema)
+                HelperMenus.colocar_manutencao(admin, sistema)
+                input("\nPressione Enter para continuar...")
             elif opcao == "3":
-                pass
-                # retirar_manutencao_admin(admin, sistema)
+                HelperMenus.remover_manutencao(admin, sistema)
+                input("\nPressione Enter para continuar...")
             elif opcao == "4":
-                pass
-                # listar_lockers_admin(sistema)
+                HelperMenus.listar_lockers(admin, sistema)
+                input("\nPressione Enter para continuar...")
             elif opcao == "5":
-                pass
-                # admin.listar_usuarios_sistema(sistema)
+                HelperMenus.listar_usuarios(admin, sistema)
+                input("\nPressione Enter para continuar...")
             elif opcao == "6":
                 pass
                 # forcar_liberacao_admin(admin, sistema)
