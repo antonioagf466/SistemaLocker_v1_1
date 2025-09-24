@@ -718,3 +718,6 @@ class HelperMenus:
         except Exception as e:
             print(f"Erro ao remover locker: {str(e)}")
             return False
+        
+    #Historico do sistema
+    #Perguntar para o sor na aula.......
