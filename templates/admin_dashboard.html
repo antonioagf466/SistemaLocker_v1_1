@@ -3,6 +3,7 @@
 <head>
     <title>Dashboard do Administrador</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
     <div class="container">
@@ -16,7 +17,62 @@
             {% endif %}
         {% endwith %}
 
-        
+        <div class="menu-grid">
+            <div class="menu-item" onclick="handleAdminAction('adicionar_locker')">
+                <h3>1. Adicionar Locker</h3>
+                <p>Adicione um novo locker ao sistema</p>
+            </div>
+            
+            <div class="menu-item" onclick="handleAdminAction('colocar_manutencao')">
+                <h3>2. Colocar em Manutenção</h3>
+                <p>Coloque um locker em manutenção</p>
+            </div>
+
+            <div class="menu-item" onclick="handleAdminAction('remover_manutencao')">
+                <h3>3. Remover da Manutenção</h3>
+                <p>Retire um locker da manutenção</p>
+            </div>
+
+            <div class="menu-item" onclick="handleAdminAction('listar_lockers')">
+                <h3>4. Listar Lockers</h3>
+                <p>Veja todos os lockers do sistema</p>
+            </div>
+
+            <div class="menu-item" onclick="handleAdminAction('listar_usuarios')">
+                <h3>5. Listar Usuários</h3>
+                <p>Veja todos os usuários cadastrados</p>
+            </div>
+
+            <div class="menu-item" onclick="handleAdminAction('forcar_liberacao')">
+                <h3>6. Forçar Liberação</h3>
+                <p>Force a liberação de um locker</p>
+            </div>
+
+            <div class="menu-item" onclick="handleAdminAction('remover_locker')">
+                <h3>7. Remover Locker</h3>
+                <p>Remova um locker do sistema</p>
+            </div>
+        </div>
+
+        <div id="resultArea" class="result-area" style="display:none;">
+            <div class="result-content"></div>
+            <button onclick="closeResult()">Fechar</button>
+        </div>
     </div>
+
+    <script>
+        function handleAdminAction(action) {
+            $.post('/admin/action', {
+                action: action
+            }, function(response) {
+                $('#resultArea').show();
+                $('#resultArea .result-content').html(response.html);
+            });
+        }
+
+        function closeResult() {
+            $('#resultArea').hide();
+        }
+    </script>
 </body>
 </html>

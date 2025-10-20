@@ -61,7 +61,8 @@ button {
     border-radius: 8px;
     text-decoration: none;
     color: #333;
-    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+    transition: transform 0.2s;
 }
 
 .menu-item:hover {
@@ -98,4 +99,17 @@ button {
     margin-top: 30px;
     padding-top: 20px;
     border-top: 1px solid #ddd;
+}
+
+.result-area {
+    margin-top: 20px;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #f8f9fa;
+}
+
+.result-content {
+    margin-bottom: 15px;
+    white-space: pre-wrap;
 }
