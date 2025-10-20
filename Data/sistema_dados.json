@@ -89,6 +89,34 @@
                     "data_liberacao": "22-09-2025 17:41:59",
                     "tipo": "Grande",
                     "status": "Liberado (Forcado)"
+                },
+                {
+                    "locker_id": "102",
+                    "data_reserva": "28-09-2025 15:19:39",
+                    "data_liberacao": null,
+                    "tipo": "Grande",
+                    "status": "Reservado"
+                },
+                {
+                    "locker_id": "102",
+                    "data_reserva": "28-09-2025 15:19:47",
+                    "data_liberacao": "28-09-2025 15:19:47",
+                    "tipo": "Grande",
+                    "status": "Liberado"
+                },
+                {
+                    "locker_id": "104",
+                    "data_reserva": "28-09-2025 15:20:05",
+                    "data_liberacao": null,
+                    "tipo": "Medio",
+                    "status": "Reservado"
+                },
+                {
+                    "locker_id": "104",
+                    "data_reserva": "28-09-2025 15:20:05",
+                    "data_liberacao": "28-09-2025 15:21:08",
+                    "tipo": "Medio",
+                    "status": "Liberado (Forcado)"
                 }
             ]
         }
@@ -102,11 +130,15 @@
             "tamanho": "Grande",
             "status": "Disponivel"
         },
-        "104": {
-            "tamanho": "Medio",
+        "102": {
+            "tamanho": "Grande",
             "status": "Disponivel"
         },
-        "102": {
+        "105": {
+            "tamanho": "Grande",
+            "status": "Disponivel"
+        },
+        "104": {
             "tamanho": "Grande",
             "status": "Disponivel"
         }

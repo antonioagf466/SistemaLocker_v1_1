@@ -19,7 +19,7 @@ class Locker:
     def set_tempo_limite(self, tempo):
         self.__tempo_limite = tempo
 
-
+#########################
 class LockerPequeno(Locker):
     def get_tempo_maximo(self):
         return 1
@@ -28,7 +28,7 @@ class LockerPequeno(Locker):
         print("Regra: tempo máximo de reserva = 1 hora")
 
 
-
+#######################
 class LockerMedio(Locker):
     def get_tempo_maximo(self):
         return 2
