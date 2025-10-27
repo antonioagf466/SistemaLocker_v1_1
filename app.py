@@ -84,24 +84,23 @@ def admin_action():
     
     action = request.form.get('action')
     admin = sistema._SistemaLocker__usuarios.get(session['user_id'])
-    result = ''
     
-    if action == 'adicionar_locker':
-        result = HelperMenus.adicionar_locker(admin, sistema)
-    elif action == 'colocar_manutencao':
-        result = HelperMenus.colocar_manutencao(admin, sistema)
-    elif action == 'remover_manutencao':
-        result = HelperMenus.remover_manutencao(admin, sistema)
-    elif action == 'listar_lockers':
-        result = HelperMenus.listar_lockers(admin, sistema)
-    elif action == 'listar_usuarios':
-        result = HelperMenus.listar_usuarios(admin, sistema)
-    elif action == 'forcar_liberacao':
-        result = HelperMenus.forcar_liberacao(admin, sistema)
-    elif action == 'remover_locker':
-        result = HelperMenus.remover_locker(admin, sistema)
-    
-    return jsonify({'html': f'Resultado da ação {action}: {result}'})
+    try:
+        # For initial load or direct actions (listar_lockers, listar_usuarios)
+        if action in ['listar_lockers', 'listar_usuarios'] or request.form.get('initial') == 'true':
+            result = getattr(HelperMenus, action)(admin, sistema)
+            return jsonify({'html': result})
+        
+        # For form submissions
+        if request.form.get('submit'):
+            result = getattr(HelperMenus, action)(admin, sistema, request.form)
+            return jsonify({'html': result})
+            
+        return jsonify({'html': '<div class="error-message">Ação inválida.</div>'})
+        
+    except Exception as e:
+        print(f"Error in admin_action: {str(e)}")  # Add debug print
+        return jsonify({'html': f'<div class="error-message">Erro: {str(e)}</div>'})
 
 
 if __name__ == "__main__":

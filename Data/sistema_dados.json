@@ -141,6 +141,14 @@
         "104": {
             "tamanho": "Grande",
             "status": "Disponivel"
+        },
+        "106": {
+            "tamanho": "Grande",
+            "status": "Disponivel"
+        },
+        "107": {
+            "tamanho": "Pequeno",
+            "status": "Disponivel"
         }
     }
 }

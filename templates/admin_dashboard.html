@@ -17,42 +17,44 @@
             {% endif %}
         {% endwith %}
 
-        <div class="menu-grid">
-            <div class="menu-item" onclick="handleAdminAction('adicionar_locker')">
+        <nav class="menu-grid">
+            <ul>
+            <li class="menu-item" onclick="handleAdminAction('adicionar_locker')">
                 <h3>1. Adicionar Locker</h3>
                 <p>Adicione um novo locker ao sistema</p>
-            </div>
+            </li>
             
-            <div class="menu-item" onclick="handleAdminAction('colocar_manutencao')">
+            <li class="menu-item" onclick="handleAdminAction('colocar_manutencao')">
                 <h3>2. Colocar em Manutenção</h3>
                 <p>Coloque um locker em manutenção</p>
-            </div>
+            </li>
 
-            <div class="menu-item" onclick="handleAdminAction('remover_manutencao')">
+            <li class="menu-item" onclick="handleAdminAction('remover_manutencao')">
                 <h3>3. Remover da Manutenção</h3>
                 <p>Retire um locker da manutenção</p>
-            </div>
+            </li>
 
-            <div class="menu-item" onclick="handleAdminAction('listar_lockers')">
+            <li class="menu-item" onclick="handleAdminAction('listar_lockers')">
                 <h3>4. Listar Lockers</h3>
                 <p>Veja todos os lockers do sistema</p>
-            </div>
+            </li>
 
-            <div class="menu-item" onclick="handleAdminAction('listar_usuarios')">
+            <li class="menu-item" onclick="handleAdminAction('listar_usuarios')">
                 <h3>5. Listar Usuários</h3>
                 <p>Veja todos os usuários cadastrados</p>
-            </div>
+            </li>
 
-            <div class="menu-item" onclick="handleAdminAction('forcar_liberacao')">
+            <li class="menu-item" onclick="handleAdminAction('forcar_liberacao')">
                 <h3>6. Forçar Liberação</h3>
                 <p>Force a liberação de um locker</p>
-            </div>
+            </li>
 
-            <div class="menu-item" onclick="handleAdminAction('remover_locker')">
+            <li class="menu-item" onclick="handleAdminAction('remover_locker')">
                 <h3>7. Remover Locker</h3>
                 <p>Remova um locker do sistema</p>
-            </div>
-        </div>
+            </li>
+            </ul>
+        </nav>
 
         <div id="resultArea" class="result-area" style="display:none;">
             <div class="result-content"></div>
@@ -62,17 +64,57 @@
 
     <script>
         function handleAdminAction(action) {
+            $('#resultArea .result-content').html('<div class="loading">Carregando...</div>');
+            $('#resultArea').show();
+            
             $.post('/admin/action', {
-                action: action
+                action: action,
+                // Add this to distinguish initial load from form submission
+                initial: true
             }, function(response) {
-                $('#resultArea').show();
                 $('#resultArea .result-content').html(response.html);
+            }).fail(function() {
+                $('#resultArea .result-content').html(
+                    '<div class="error-message">Erro ao executar ação. Tente novamente.</div>'
+                );
             });
         }
 
         function closeResult() {
             $('#resultArea').hide();
+            // Refresh page if needed after certain actions
+            if ($('.success-message').length > 0) {
+                location.reload();
+            }
         }
+
+        // Update the form submission handler
+        $(document).on('submit', 'form', function(e) {
+            e.preventDefault();
+            const form = $(this);
+            const action = form.find('input[name="action"]').val() || form.data('action');
+            
+            // Create formData and append the action
+            const formData = new FormData(this);
+            formData.append('action', action);
+            formData.append('submit', 'true');
+            
+            $.ajax({
+                url: '/admin/action',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    $('#resultArea .result-content').html(response.html);
+                },
+                error: function() {
+                    $('#resultArea .result-content').html(
+                        '<div class="error-message">Erro ao processar formulário. Tente novamente.</div>'
+                    );
+                }
+            });
+        });
     </script>
 </body>
 </html>
