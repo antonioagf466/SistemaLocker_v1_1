@@ -96,8 +96,8 @@ button {
 
 .menu-item p {
     margin-top: 15px;
-    color: #666;
-    font-size: 1.2rem;
+    color: #000000;
+    font-size: 1.3rem;
 }
 
 #logout span{
@@ -112,8 +112,11 @@ button {
 }
 
 .result-content {
+    display: flex;
+    flex-direction: column;
     margin-bottom: 15px;
-    white-space: pre-wrap;
+    text-align: center;
+    font-size: 1.2rem;
 }
 
 .form-group select {
@@ -139,4 +142,9 @@ button {
     border-radius: 4px;
     color: #721c24;
     margin-bottom: 15px;
+}
+
+#button-fechar {
+    display: block;
+    margin: auto;
 }
