@@ -9,40 +9,36 @@
     <div class="container">
         <h1>Bem-vindo, {{ user.get_nome() }}</h1>
         
-        {% with messages = get_flashed_messages() %}
-            {% if messages %}
-                {% for message in messages %}
-                    <div class="alert">{{ message }}</div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
-
         <nav class="menu-grid">
-            <ul>
+            <ul class="menu-list">
             <li class="menu-item" onclick="handleUserAction('reservar_locker')">
-                <h3>1. Reservar Locker</h3>
+                <span>1. Reservar Locker</span>
                 <p>Reserve um locker disponível</p>
             </li>
             
             <li class="menu-item" onclick="handleUserAction('liberar_locker')">
-                <h3>2. Liberar Locker</h3>
+                <span>2. Liberar Locker</span>
                 <p>Libere seu locker atual</p>
             </li>
 
             <li class="menu-item" onclick="handleUserAction('ver_locker')">
-                <h3>3. Ver Meu Locker</h3>
+                <span>3. Ver Meu Locker</span>
                 <p>Veja detalhes do seu locker</p>
             </li>
 
             <li class="menu-item" onclick="handleUserAction('ver_historico')">
-                <h3>4. Ver Histórico</h3>
+                <span>4. Ver Histórico</span>
                 <p>Veja seu histórico de reservas</p>
             </li>
 
             <li class="menu-item" onclick="handleUserAction('alterar_senha')">
-                <h3>5. Alterar Senha</h3>
+                <span>5. Alterar Senha</span>
                 <p>Altere sua senha</p>
             </li>
+            <li id="logout" class="menu-item" onclick="window.location.href='{{ url_for('logout') }}'">
+            <span>6. Sair</span>
+            <p>Encerrar sessão</p>
+        </li>
             </ul>
         </nav>
 

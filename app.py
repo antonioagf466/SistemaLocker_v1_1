@@ -31,7 +31,6 @@ def login():
             session['user_id'] = user.get_id()
             session['user_name'] = user.get_nome()
             session['is_admin'] = isinstance(user, Administrador)
-            flash('Login realizado com sucesso!')
             if session['is_admin']:
                 return redirect(url_for('admin_dashboard'))
             return redirect(url_for('user_dashboard'))
@@ -102,6 +101,10 @@ def admin_action():
         print(f"Error in admin_action: {str(e)}")  # Add debug print
         return jsonify({'html': f'<div class="error-message">Erro: {str(e)}</div>'})
 
+@app.route('/logout')
+def logout():
+    session.clear()  # Clear all session data
+    return redirect(url_for('login'))
 
 if __name__ == "__main__":
     app.run(debug=True)

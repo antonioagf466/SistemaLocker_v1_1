@@ -8,51 +8,47 @@
 <body>
     <div class="container">
         <h1>Dashboard do Administrador - {{ admin.get_nome() }}</h1>
-        
-        {% with messages = get_flashed_messages() %}
-            {% if messages %}
-                {% for message in messages %}
-                    <div class="alert">{{ message }}</div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
 
         <nav class="menu-grid">
-            <ul>
+            <ul class="menu-list">
             <li class="menu-item" onclick="handleAdminAction('adicionar_locker')">
-                <h3>1. Adicionar Locker</h3>
+                <span>1. Adicionar Locker</span>
                 <p>Adicione um novo locker ao sistema</p>
             </li>
             
             <li class="menu-item" onclick="handleAdminAction('colocar_manutencao')">
-                <h3>2. Colocar em Manutenção</h3>
+                <span>2. Colocar em Manutenção</span>
                 <p>Coloque um locker em manutenção</p>
             </li>
 
             <li class="menu-item" onclick="handleAdminAction('remover_manutencao')">
-                <h3>3. Remover da Manutenção</h3>
+                <span>3. Remover da Manutenção</span>
                 <p>Retire um locker da manutenção</p>
             </li>
 
             <li class="menu-item" onclick="handleAdminAction('listar_lockers')">
-                <h3>4. Listar Lockers</h3>
+                <span>4. Listar Lockers</span>
                 <p>Veja todos os lockers do sistema</p>
             </li>
 
             <li class="menu-item" onclick="handleAdminAction('listar_usuarios')">
-                <h3>5. Listar Usuários</h3>
+                <span>5. Listar Usuários</span>
                 <p>Veja todos os usuários cadastrados</p>
             </li>
 
             <li class="menu-item" onclick="handleAdminAction('forcar_liberacao')">
-                <h3>6. Forçar Liberação</h3>
+                <span>6. Forçar Liberação</span>
                 <p>Force a liberação de um locker</p>
             </li>
 
             <li class="menu-item" onclick="handleAdminAction('remover_locker')">
-                <h3>7. Remover Locker</h3>
+                <span>7. Remover Locker</span>
                 <p>Remova um locker do sistema</p>
             </li>
+            <li id="logout" class="menu-item" onclick="window.location.href='{{ url_for('logout') }}'">
+            <span>6. Sair</span>
+            <p>Encerrar sessão</p>
+        </li>
             </ul>
         </nav>
 
