@@ -148,3 +148,6 @@ button {
     display: block;
     margin: auto;
 }
+pre {
+    font-size: 18px;
+}

@@ -45,8 +45,12 @@
                 <span>7. Remover Locker</span>
                 <p>Remova um locker do sistema</p>
             </li>
+            <li class="menu-item" onclick="handleAdminAction('ver_json')">
+            <span>8. Ver Banco de dados</span>
+            <p>Visualizar banco de dados</p>
+            </li>
             <li id="logout" class="menu-item" onclick="window.location.href='{{ url_for('logout') }}'">
-            <span>6. Sair</span>
+            <span>9. Sair</span>
             <p>Encerrar sessão</p>
         </li>
             </ul>

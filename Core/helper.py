@@ -982,3 +982,39 @@ class HelperMenus:
                     
         except Exception as e:
             return f'<div class="error-message">Erro ao remover locker: {str(e)}</div>'
+    @staticmethod
+    def ver_json(admin, sistema, form_data=None):
+        """Display the entire sistema_dados.json file"""
+        try:
+            import json
+            
+            # Get the current data from sistema
+            dados = {
+                'usuarios': sistema._SistemaLocker__usuarios,
+                'lockers': sistema._SistemaLocker__lockers
+            }
+            
+            # Convert users to dictionary format
+            usuarios_dict = {}
+            for user_id, user in dados['usuarios'].items():
+                usuarios_dict[user_id] = {
+                    'nome': user.get_nome(),
+                    'senha': user._Usuario__senha,
+                    'tipo': 'admin' if isinstance(user, Administrador) else 'user',
+                    'locker_reservado': user.get_locker_reservado(),
+                    'historico_reservas': user.get_historico_reservas()
+                }
+            
+            dados['usuarios'] = usuarios_dict
+            
+            # Convert to JSON string with proper formatting
+            json_str = json.dumps(dados, indent=4, ensure_ascii=False)
+            
+            # Return formatted HTML
+            return f'''
+                <h2>Conteúdo do sistema_dados.json</h2>
+                <pre>{json_str}</pre>
+            '''
+                
+        except Exception as e:
+            return f'<div class="error-message">Erro ao exibir JSON: {str(e)}</div>'
