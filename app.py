@@ -61,20 +61,20 @@ def user_action():
     
     action = request.form.get('action')
     user = sistema._SistemaLocker__usuarios.get(session['user_id'])
-    result = ''
     
-    if action == 'reservar_locker':
-        result = HelperMenus.reservar_locker(user, sistema)
-    elif action == 'liberar_locker':
-        result = HelperMenus.liberar_locker(user, sistema)
-    elif action == 'ver_locker':
-        result = HelperMenus.ver_locker(user, sistema)
-    elif action == 'ver_historico':
-        result = HelperMenus.ver_historico(user, sistema)
-    elif action == 'alterar_senha':
-        result = HelperMenus.alterar_senha(user, sistema)
-    
-    return jsonify({'html': f'Resultado da ação {action}: {result}'})
+    try:
+        # Handle form submissions
+        if request.form.get('submit'):
+            result = getattr(HelperMenus, action)(user, sistema, request.form)
+        # Handle initial display
+        else:
+            result = getattr(HelperMenus, action)(user, sistema)
+            
+        return jsonify({'html': result})
+        
+    except Exception as e:
+        print(f"Error in user_action: {str(e)}")  # Add debug print
+        return jsonify({'html': f'<div class="error-message">Erro: {str(e)}</div>'})
 
 @app.route('/admin/action', methods=['POST'])
 def admin_action():

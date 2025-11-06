@@ -31,12 +31,17 @@ class HelperMenus:
     def reservar_locker(usuario, sistema, form_data=None):
         """Reserve a locker for the user - Web version"""
         try:
-            # Check if user already has a reserved locker
+            # Check how many lockers the user has reserved
             usuario_id = usuario.get_id()
-            for locker_id, locker_data in sistema._SistemaLocker__lockers.items():
+            lockers_reservados = 0
+            for locker_data in sistema._SistemaLocker__lockers.values():
                 if (locker_data.get('status') == 'Ocupado' and 
                     locker_data.get('reservado_por') == usuario_id):
-                    return '<div class="error-message">Você já possui um locker reservado! (Locker {})</div>'.format(locker_id)
+                    lockers_reservados += 1
+            
+            # Check if user already has maximum number of lockers
+            if lockers_reservados >= 3:
+                return '<div class="error-message">Você já possui 3 lockers reservados (máximo permitido)!</div>'
 
             # If no form data, show available lockers
             if form_data is None:
@@ -151,147 +156,152 @@ class HelperMenus:
             return f'<div class="error-message">Erro ao reservar locker: {str(e)}</div>'
         
     @staticmethod
-    def liberar_locker(usuario, sistema, form_data=None):
-        """Release a locker reserved by the user - Web version"""
+    def ver_locker(usuario, sistema, form_data=None):
+        """Check user's reserved lockers - Web version"""
         try:
             usuario_id = usuario.get_id()
             
-            # Find the locker reserved by the user
-            locker_reservado = None
+            # Find all lockers reserved by the user
+            lockers_reservados = {}
             for locker_id, locker_data in sistema._SistemaLocker__lockers.items():
                 if (locker_data.get('status') == 'Ocupado' and 
                     locker_data.get('reservado_por') == usuario_id):
-                    locker_reservado = locker_id
-                    break
+                    lockers_reservados[locker_id] = locker_data
             
-            # Check if user has any reserved locker
-            if not locker_reservado:
+            # Check if user has any reserved lockers
+            if not lockers_reservados:
                 return '<div class="error-message">Você não possui nenhum locker reservado.</div>'
             
-                # If no form data or not a submission, show confirmation form
+            try:
+                # Show all current lockers information
+                html = '<h2>Seus Lockers Atuais</h2>'
+                
+                for locker_id, locker_data in lockers_reservados.items():
+                    tempo_limite = locker_data.get('tempo_limite', 'Não definido')
+                    
+                    html += f'''
+                        <div class="locker-info">
+                            <p><strong>ID do Locker:</strong> {locker_id}</p>
+                            <p><strong>Tamanho:</strong> {locker_data['tamanho']}</p>
+                            <p><strong>Data de Reserva:</strong> {locker_data.get('data_reserva', 'N/A')}</p>
+                            <p><strong>Tempo Limite:</strong> {tempo_limite}</p>
+                            <p><strong>Status:</strong> {locker_data['status']}</p>
+                            <hr>
+                        </div>
+                    '''
+                
+                return html
+            
+            except Exception as e:
+                return f'<div class="error-message">Erro ao visualizar lockers: {str(e)}</div>'
+                
+        except Exception as e:
+            return f'<div class="error-message">Erro ao buscar lockers: {str(e)}</div>'
+    @staticmethod
+    def liberar_locker(usuario, sistema, form_data=None):
+        """Release user's lockers - Web version"""
+        try:
+            usuario_id = usuario.get_id()
+            
+            # Find all lockers reserved by the user
+            lockers_reservados = {}
+            for locker_id, locker_data in sistema._SistemaLocker__lockers.items():
+                if (locker_data.get('status') == 'Ocupado' and 
+                    locker_data.get('reservado_por') == usuario_id):
+                    lockers_reservados[locker_id] = locker_data
+            
+            # Check if user has any reserved lockers
+            if not lockers_reservados:
+                return '<div class="error-message">Você não possui nenhum locker reservado.</div>'
+            
+            # If no form data or not a submission, show confirmation form
             if form_data is None or not form_data.get('submit'):
-                locker_data = sistema._SistemaLocker__lockers[locker_reservado]
-                html = f'''
-                    <h2>Liberar Locker</h2>
-                    <div class="locker-info">
-                        <p><strong>ID do Locker:</strong> {locker_reservado}</p>
-                        <p><strong>Tamanho:</strong> {locker_data['tamanho']}</p>
-                        <p><strong>Data de Reserva:</strong> {locker_data.get('data_reserva', 'N/A')}</p>
-                        <p><strong>Tempo Limite:</strong> {locker_data.get('tempo_limite', 'N/A')}</p>
-                    </div>
-                    <div class="confirmation-buttons">
-                        <button onclick="submitLiberarForm(\'{locker_reservado}\')" class="primary-button">
-                            Confirmar Liberação
-                        </button>
-                        <button onclick="closeResult()" class="cancel-button">
-                            Cancelar
-                        </button>
-                    </div>
+                html = '<h2>Liberar Lockers</h2>'
+                
+                for locker_id, locker_data in lockers_reservados.items():
+                    html += f'''
+                        <div class="locker-info">
+                            <p><strong>ID do Locker:</strong> {locker_id}</p>
+                            <p><strong>Tamanho:</strong> {locker_data['tamanho']}</p>
+                            <p><strong>Data de Reserva:</strong> {locker_data.get('data_reserva', 'N/A')}</p>
+                            <p><strong>Tempo Limite:</strong> {locker_data.get('tempo_limite', 'N/A')}</p>
+                            <div class="confirmation-buttons">
+                                <button onclick="submitLiberarForm('{locker_id}')" class="primary-button">
+                                    Liberar Este Locker
+                                </button>
+                            </div>
+                            <hr>
+                        </div>
+                    '''
+                
+                html += '''
+                    <button onclick="closeResult()" class="cancel-button">Cancelar</button>
                     <script>
-                        function submitLiberarForm(lockerId) {{
-                            if(confirm("Tem certeza que deseja liberar este locker?")) {{
-                                $.post('/user/action', {{
+                        function submitLiberarForm(lockerId) {
+                            if(confirm("Tem certeza que deseja liberar este locker?")) {
+                                $.post('/user/action', {
                                     action: 'liberar_locker',
                                     locker_id: lockerId,
                                     submit: true
-                                }}, function(response) {{
-                                    $('.result-content').html(response.html);
-                                    if(response.html.includes('success-message')) {{
-                                        setTimeout(function() {{
-                                            location.reload();
-                                        }}, 2000);
-                                    }}
-                                }});
-                            }}
-                        }}
+                            }, function(response) {
+                                $('.result-content').html(response.html);
+                                if(response.html.includes('success-message')) {
+                                    setTimeout(function() {
+                                        location.reload();
+                                    }, 2000);
+                                }
+                            });
+                            }
+                        }
                     </script>
                 '''
                 return html
 
             # Process form submission
-            locker_id = form_data.get('locker_id')
-            if locker_id != locker_reservado:
-                return '<div class="error-message">Locker inválido.</div>'
+            if form_data.get('submit'):
+                locker_id = form_data.get('locker_id')
+                if locker_id not in lockers_reservados:
+                    return '<div class="error-message">Locker inválido.</div>'
                 
-            locker_data = sistema._SistemaLocker__lockers[locker_id]
-            
-            # Release the locker
-            locker_data['status'] = 'Disponivel'
-            data_liberacao = HelperMenus.get_formatted_time()
-            
-            # Create history entry
-            historico_liberacao = {
-                'locker_id': locker_id,
-                'data_reserva': locker_data.get('data_reserva', data_liberacao),
-                'data_liberacao': data_liberacao,
-                'tipo': locker_data['tamanho'],
-                'status': 'Liberado'
-            }
-            
-            # Update user data
-            usuario.set_locker_reservado(None)
-            usuario.adicionar_reserva(historico_liberacao)
-            
-            # Clean up locker data
-            locker_data.pop('reservado_por', None)
-            locker_data.pop('data_reserva', None)
-            locker_data.pop('tempo_limite', None)
-            
-            # Save changes
-            if sistema._salvar_dados():
-                return f'''
-                    <div class="success-message">
-                        <h3>Locker liberado com sucesso!</h3>
-                        <p>ID do Locker: {locker_id}</p>
-                        <p>Tamanho: {locker_data['tamanho']}</p>
-                        <p>Data de Liberação: {data_liberacao}</p>
-                    </div>
-                '''
-            else:
-                return '<div class="error-message">Erro ao salvar os dados. A liberação não foi concluída.</div>'
+                locker_data = sistema._SistemaLocker__lockers[locker_id]
                 
+                # Release the locker
+                locker_data['status'] = 'Disponivel'
+                data_liberacao = HelperMenus.get_formatted_time()
+                
+                # Create history entry
+                historico_liberacao = {
+                    'locker_id': locker_id,
+                    'data_reserva': locker_data.get('data_reserva', data_liberacao),
+                    'data_liberacao': data_liberacao,
+                    'tipo': locker_data['tamanho'],
+                    'status': 'Liberado'
+                }
+                
+                # Update user data
+                usuario.adicionar_reserva(historico_liberacao)
+                
+                # Clean up locker data
+                locker_data.pop('reservado_por', None)
+                locker_data.pop('data_reserva', None)
+                locker_data.pop('tempo_limite', None)
+                
+                # Save changes
+                if sistema._salvar_dados():
+                    return f'''
+                        <div class="success-message">
+                            <h3>Locker liberado com sucesso!</h3>
+                            <p>ID do Locker: {locker_id}</p>
+                            <p>Tamanho: {locker_data['tamanho']}</p>
+                            <p>Data de Liberação: {data_liberacao}</p>
+                        </div>
+                    '''
+                else:
+                    return '<div class="error-message">Erro ao salvar os dados. A liberação não foi concluída.</div>'
+            
         except Exception as e:
             return f'<div class="error-message">Erro ao liberar locker: {str(e)}</div>'
-        
-    @staticmethod
-    def ver_locker(usuario, sistema, form_data=None):
-        """Check user's reserved locker - Web version"""
-        try:
-            usuario_id = usuario.get_id()
-            
-            # Find the locker reserved by the user
-            locker_reservado = None
-            for locker_id, locker_data in sistema._SistemaLocker__lockers.items():
-                if (locker_data.get('status') == 'Ocupado' and 
-                    locker_data.get('reservado_por') == usuario_id):
-                    locker_reservado = locker_id
-                    break
-            
-            # Check if user has any reserved locker
-            if not locker_reservado:
-                return '<div class="error-message">Você não possui nenhum locker reservado.</div>'
-            
-            try:
-                # Show current locker information
-                locker_data = sistema._SistemaLocker__lockers[locker_reservado]
-                tempo_limite = locker_data.get('tempo_limite', 'Não definido')
-                
-                return f'''
-                    <div class="locker-info">
-                        <h2>Seu Locker Atual</h2>
-                        <p><strong>ID do Locker:</strong> {locker_reservado}</p>
-                        <p><strong>Tamanho:</strong> {locker_data['tamanho']}</p>
-                        <p><strong>Data de Reserva:</strong> {locker_data.get('data_reserva', 'N/A')}</p>
-                        <p><strong>Tempo Limite:</strong> {tempo_limite}</p>
-                        <p><strong>Status:</strong> {locker_data['status']}</p>
-                    </div>
-                '''
-            
-            except Exception as e:
-                return f'<div class="error-message">Erro ao visualizar locker: {str(e)}</div>'
-                
-        except Exception as e:
-            return f'<div class="error-message">Erro ao buscar locker: {str(e)}</div>'
+
     @staticmethod
     def ver_historico(usuario, sistema, form_data=None):
         """View user's reservation history - Web version"""
@@ -717,8 +727,8 @@ class HelperMenus:
                             <th>ID</th>
                             <th>Nome</th>
                             <th>Tipo</th>
-                            <th>Locker ID</th>
-                            <th>Tamanho Locker</th>
+                            <th>Lockers</th>
+                            <th>Detalhes</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -728,24 +738,37 @@ class HelperMenus:
                 nome = user.get_nome()
                 tipo = "Admin" if isinstance(user, Administrador) else "Usuário"
                 
-                # Get locker info if user has one reserved
-                locker_id = 'N/A'
-                locker_tamanho = 'N/A'
-                
+                # Get all lockers info for this user
+                lockers_info = []
                 for lid, locker_data in sistema._SistemaLocker__lockers.items():
                     if (locker_data.get('status') == 'Ocupado' and 
                         locker_data.get('reservado_por') == user_id):
-                        locker_id = lid
-                        locker_tamanho = locker_data.get('tamanho', 'N/A')
-                        break
+                        lockers_info.append({
+                            'id': lid,
+                            'tamanho': locker_data.get('tamanho', 'N/A')
+                        })
+                
+                # Format locker display
+                if not lockers_info:
+                    lockers_display = 'N/A'
+                    details_display = 'Nenhum locker reservado'
+                else:
+                    # Show first locker ID with "+" if there are more
+                    lockers_display = f"{lockers_info[0]['id']}"
+                    if len(lockers_info) > 1:
+                        lockers_display += f" (+{len(lockers_info)-1})"
+                    
+                    # Create detailed info for all lockers
+                    details = [f"Locker {l['id']} ({l['tamanho']})" for l in lockers_info]
+                    details_display = "<br>".join(details)
                 
                 html += f'''
                     <tr>
                         <td>{user_id}</td>
                         <td>{nome}</td>
                         <td>{tipo}</td>
-                        <td>{locker_id}</td>
-                        <td>{locker_tamanho}</td>
+                        <td>{lockers_display}</td>
+                        <td>{details_display}</td>
                     </tr>
                 '''
             
