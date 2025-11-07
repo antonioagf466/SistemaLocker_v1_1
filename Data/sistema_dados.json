@@ -227,6 +227,10 @@
         "109": {
             "tamanho": "Grande",
             "status": "Disponivel"
+        },
+        "110": {
+            "tamanho": "Grande",
+            "status": "Disponivel"
         }
     }
 }

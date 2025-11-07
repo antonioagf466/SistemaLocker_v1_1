@@ -85,18 +85,21 @@ def admin_action():
     admin = sistema._SistemaLocker__usuarios.get(session['user_id'])
     
     try:
-        # For initial load or direct actions (listar_lockers, listar_usuarios)
-        if action in ['listar_lockers', 'listar_usuarios'] or request.form.get('initial') == 'true':
+        # Verify if the action exists in HelperMenus
+        if not hasattr(HelperMenus, action):
+            return jsonify({'html': f'<div class="error-message">Ação "{action}" não implementada.</div>'})
+        
+        # For initial load or direct actions
+        if request.form.get('initial') == 'true':
             result = getattr(HelperMenus, action)(admin, sistema)
             return jsonify({'html': result})
         
         # For form submissions
-        if request.form.get('submit'):
+        if request.form.get('submit') == 'true':
             result = getattr(HelperMenus, action)(admin, sistema, request.form)
             return jsonify({'html': result})
             
-        return jsonify({'html': '<div class="error-message">Ação inválida.</div>'})
-        
+        return jsonify({'html': '<div class="error-message">Requisição inválida.</div>'})
     except Exception as e:
         print(f"Error in admin_action: {str(e)}")  # Add debug print
         return jsonify({'html': f'<div class="error-message">Erro: {str(e)}</div>'})
